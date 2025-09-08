@@ -1,32 +1,28 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs").promises;
 
-// Set storage engine
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "upload/menu/"); // Store images in upload/menu/
+  destination: async function (req, file, cb) {
+    // Determine folder from URL
+    let folder = "others";
+    if (req.baseUrl.includes("menus")) folder = "menu";
+    else if (req.baseUrl.includes("franchises")) folder = "franchise";
+    else if (req.baseUrl.includes("franchise-gallery")) folder = "franchiseGallery";
+    else if (req.baseUrl.includes("gallery")) folder = "gallery";
+
+    const uploadPath = path.join(__dirname, "..", "upload", folder);
+
+    // Ensure folder exists
+    await fs.mkdir(uploadPath, { recursive: true });
+
+    cb(null, uploadPath);
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, `${uniqueSuffix}-${file.originalname}`);
+    cb(null, Date.now() + "-" + file.originalname.replace(/\s+/g, "_"));
   },
 });
 
-// Initialize upload
-const upload = multer({
-  storage: storage,
-  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
-  fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png|gif/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
-
-    if (extname && mimetype) {
-      return cb(null, true);
-    } else {
-      cb(new Error("Only images (jpeg, jpg, png, gif) are allowed"));
-    }
-  },
-});
+const upload = multer({ storage });
 
 module.exports = upload;

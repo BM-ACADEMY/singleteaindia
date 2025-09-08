@@ -1,160 +1,185 @@
-// src/components/MenuForm.jsx
 import React, { useState } from "react";
 import axiosInstance from "@/api/axiosInstance";
+import { showToast } from "@/utils/customToast";
 
 const MenuForm = () => {
   const [title, setTitle] = useState("");
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [contentItems, setContentItems] = useState([]);
-  const [newContent, setNewContent] = useState("");
-  const [error, setError] = useState(null);
-  const [success, setSuccess] = useState(null);
+  const [products, setProducts] = useState([
+    { name: "", quantity: "", price: "", image: null, preview: null },
+  ]);
+  const [loading, setLoading] = useState(false);
 
-  // Handle image upload + preview
-  const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImage(file);
-      setPreview(URL.createObjectURL(file));
+  // Handle input change
+  const handleProductChange = (index, field, value) => {
+    const newProducts = [...products];
+    if (field === "image" && value) {
+      newProducts[index].preview = URL.createObjectURL(value); // Create preview URL
     }
+    newProducts[index][field] = value;
+    setProducts(newProducts);
   };
 
-  // Add new content item
-  const addContentItem = () => {
-    if (newContent.trim() !== "") {
-      setContentItems([...contentItems, newContent]);
-      setNewContent("");
-    }
+  // Add new product
+  const addProduct = () => {
+    setProducts([...products, { name: "", quantity: "", price: "", image: null, preview: null }]);
   };
 
-  // Remove content item
-  const removeContentItem = (index) => {
-    const updated = contentItems.filter((_, i) => i !== index);
-    setContentItems(updated);
+  // Remove product
+  const removeProduct = (index) => {
+    if (products.length > 1) {
+      const newProducts = products.filter((_, i) => i !== index);
+      // Clean up preview URLs to avoid memory leaks
+      if (products[index].preview) {
+        URL.revokeObjectURL(products[index].preview);
+      }
+      setProducts(newProducts);
+    }
   };
 
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setSuccess(null);
-
-    const formData = new FormData();
-    formData.append("title", title);
-    if (image) formData.append("image", image);
-    formData.append("content_text", JSON.stringify(contentItems));
+    setLoading(true);
 
     try {
-      const response = await axiosInstance.post("/menus", formData, {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append(
+        "products",
+        JSON.stringify(
+          products.map((p) => ({
+            name: p.name,
+            quantity: p.quantity,
+            price: p.price,
+          }))
+        )
+      );
+
+      // Append images separately
+      products.forEach((p) => {
+        if (p.image) formData.append("images", p.image);
+      });
+
+      const res = await axiosInstance.post("/menus", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setSuccess("Menu created successfully!");
-      // Reset form
+
+      showToast("success", "Menu created successfully!");
       setTitle("");
-      setImage(null);
-      setPreview(null);
-      setContentItems([]);
-      setNewContent("");
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to create menu");
+      // Clean up previews
+      products.forEach((p) => {
+        if (p.preview) URL.revokeObjectURL(p.preview);
+      });
+      setProducts([{ name: "", quantity: "", price: "", image: null, preview: null }]);
+    } catch (error) {
+      console.error(error);
+      showToast("error", error.response?.data?.message || "Error creating menu");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col items-center bg-gray-100 p-6">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-2xl p-6 w-full max-w-lg space-y-4"
-      >
-        <h2 className="text-2xl font-semibold text-gray-800">Create Menu</h2>
+    <div className="max-w-3xl mx-auto p-6 bg-white shadow rounded-lg">
+      <h2 className="text-2xl font-bold mb-4">Create Menu</h2>
 
-        {error && <p className="text-red-500">{error}</p>}
-        {success && <p className="text-green-500">{success}</p>}
-
-        {/* Title */}
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Main Heading */}
         <div>
-          <label className="block text-gray-600 mb-1">Menu Title</label>
+          <label className="block font-medium">Main Heading</label>
           <input
             type="text"
-            placeholder="Enter menu title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            className="w-full border rounded-md p-2"
+            className="mt-1 w-full border rounded px-3 py-2"
             required
           />
         </div>
 
-        {/* Image Upload */}
-        <div>
-          <label className="block text-gray-600 mb-1">Menu Image</label>
-          <input
-            type="file"
-            accept="image/*"
-            onChange={handleImageChange}
-            className="w-full border rounded-md p-2"
-          />
-          {preview && (
-            <img
-              src={preview}
-              alt="preview"
-              className="mt-2 w-32 h-32 object-cover rounded-md border"
-            />
-          )}
-        </div>
+        {/* Products Section */}
+        <div className="space-y-6">
+          {products.map((product, index) => (
+            <div key={index} className="p-4 border rounded-lg space-y-3 relative">
+              <h3 className="font-semibold">Product {index + 1}</h3>
 
-        {/* Content Items */}
-        <div>
-          <label className="block text-gray-600 mb-1">Menu Items</label>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="Add item (e.g. Paneer Butter Masala)"
-              value={newContent}
-              onChange={(e) => setNewContent(e.target.value)}
-              className="flex-1 border rounded-md p-2"
-            />
-            <button
-              type="button"
-              onClick={addContentItem}
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-            >
-              Add
-            </button>
-          </div>
+              {/* Image Preview */}
+              {product.preview && (
+                <div className="mb-2">
+                  <img
+                    src={product.preview}
+                    alt="Preview"
+                    className="w-full h-32 object-cover rounded"
+                  />
+                </div>
+              )}
 
-          {/* List of items */}
-          <ul className="mt-3 space-y-2">
-            {contentItems.map((item, index) => (
-              <li
-                key={index}
-                className="flex justify-between items-center bg-gray-50 p-2 rounded-md border"
-              >
-                <span>{item}</span>
+              <input
+                type="text"
+                placeholder="Name"
+                value={product.name}
+                onChange={(e) => handleProductChange(index, "name", e.target.value)}
+                className="w-full border rounded px-3 py-2"
+                required
+              />
+
+              <input
+                type="text"
+                placeholder="Quantity (e.g. 250g)"
+                value={product.quantity}
+                onChange={(e) => handleProductChange(index, "quantity", e.target.value)}
+                className="w-full border rounded px-3 py-2"
+              />
+
+              <input
+                type="number"
+                placeholder="Price"
+                value={product.price}
+                onChange={(e) => handleProductChange(index, "price", e.target.value)}
+                className="w-full border rounded px-3 py-2"
+                required
+              />
+
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleProductChange(index, "image", e.target.files[0])}
+                className="w-full"
+              />
+
+              {products.length > 1 && (
                 <button
                   type="button"
-                  onClick={() => removeContentItem(index)}
-                  className="text-red-500 hover:text-red-700 text-sm"
+                  onClick={() => removeProduct(index)}
+                  className="text-red-500 absolute top-2 right-2"
                 >
-                  Remove
+                  ✖
                 </button>
-              </li>
-            ))}
-          </ul>
+              )}
+            </div>
+          ))}
+
+          <button
+            type="button"
+            onClick={addProduct}
+            className="bg-gray-200 px-4 py-2 rounded hover:bg-gray-300"
+          >
+            + Add Product
+          </button>
         </div>
 
         {/* Submit */}
-        <button
-          type="submit"
-          className="w-full bg-red-500 hover:bg-red-600 text-white p-2 rounded-md transition"
-        >
-          Save Menu
-        </button>
+        <div>
+          <button
+            type="submit"
+            disabled={loading}
+            className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 disabled:opacity-50"
+          >
+            {loading ? "Saving..." : "Submit Menu"}
+          </button>
+        </div>
       </form>
     </div>
   );
 };
 
 export default MenuForm;
-
-

@@ -43,6 +43,7 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     try {
       const res = await axiosInstance.post("/auth/login", { email, password });
+
       showToast("success", res.data.message);
       await loadUser();
       return res.data;

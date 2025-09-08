@@ -1,59 +1,119 @@
 const Franchise = require("../model/Franchise");
+const fs = require("fs").promises;
+const path = require("path");
 
-// Get all franchises
 exports.getAllFranchises = async (req, res) => {
   try {
     const franchises = await Franchise.find();
-    res.json(franchises);
+    res.status(200).json(franchises);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// Get single franchise by ID
 exports.getFranchiseById = async (req, res) => {
   try {
     const franchise = await Franchise.findById(req.params.id);
-    if (!franchise) return res.status(404).json({ message: "Franchise not found" });
-    res.json(franchise);
+    if (!franchise) {
+      return res.status(404).json({ message: "Franchise not found" });
+    }
+    res.status(200).json(franchise);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// Create franchise
 exports.createFranchise = async (req, res) => {
   try {
-    const { title, content_text, images_url } = req.body;
-    const franchise = await Franchise.create({ title, content_text, images_url });
+    let { title, contents, location_map_url } = req.body;
+    if (typeof contents === "string") {
+      contents = JSON.parse(contents);
+    }
+    const images_url = req.files
+      ? req.files.map(
+          (file) => `${process.env.SERVER_URL}/upload/franchise/${file.filename}`
+        )
+      : [];
+    const franchise = await Franchise.create({ title, contents, images_url, location_map_url });
     res.status(201).json(franchise);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// Update franchise
 exports.updateFranchise = async (req, res) => {
   try {
-    const { title, content_text, images_url } = req.body;
+    let { title, contents, location_map_url, images_url } = req.body;
+    if (typeof contents === "string") {
+      contents = JSON.parse(contents);
+    }
+    if (typeof images_url === "string") {
+      images_url = JSON.parse(images_url);
+    }
+
+    // Get existing franchise
+    const existingFranchise = await Franchise.findById(req.params.id);
+    if (!existingFranchise) {
+      return res.status(404).json({ message: "Franchise not found" });
+    }
+
+    // Delete old images not included in images_url
+    const oldImages = existingFranchise.images_url || [];
+    const imagesToDelete = oldImages.filter((url) => !images_url.includes(url));
+    for (const url of imagesToDelete) {
+      const filename = path.basename(url);
+      const filePath = path.join(__dirname, "..", "upload", "franchise", filename); // Fixed path
+      try {
+        await fs.unlink(filePath);
+      } catch (err) {
+        console.error(`Failed to delete image ${filename}:`, err.message);
+      }
+    }
+
+    // Add new images
+    const newImages = req.files
+      ? req.files.map(
+          (file) => `${process.env.SERVER_URL}/upload/franchise/${file.filename}`
+        )
+      : [];
+    const updatedImagesUrl = [...(images_url || []), ...newImages];
+
     const franchise = await Franchise.findByIdAndUpdate(
       req.params.id,
-      { title, content_text, images_url },
-      { new: true }
+      { title, contents, location_map_url, images_url: updatedImagesUrl },
+      { new: true, runValidators: true }
     );
-    if (!franchise) return res.status(404).json({ message: "Franchise not found" });
-    res.json(franchise);
+
+    if (!franchise) {
+      return res.status(404).json({ message: "Franchise not found" });
+    }
+
+    res.status(200).json(franchise);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
-// Delete franchise
 exports.deleteFranchise = async (req, res) => {
   try {
-    const franchise = await Franchise.findByIdAndDelete(req.params.id);
-    if (!franchise) return res.status(404).json({ message: "Franchise not found" });
-    res.json({ message: "Franchise deleted successfully" });
+    const franchise = await Franchise.findById(req.params.id);
+    if (!franchise) {
+      return res.status(404).json({ message: "Franchise not found" });
+    }
+
+    // Delete associated images
+    for (const url of franchise.images_url || []) {
+      const filename = path.basename(url);
+      const filePath = path.join(__dirname, "..", "upload", "franchise", filename); // Fixed path
+      try {
+        await fs.unlink(filePath);
+      } catch (err) {
+        console.error(`Failed to delete image ${filename}:`, err.message);
+      }
+    }
+
+    await Franchise.findByIdAndDelete(req.params.id);
+    res.status(200).json({ message: "Franchise deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }

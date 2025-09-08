@@ -4,14 +4,16 @@ import Homesection from "./Homesection";
 import Login from "@/auth/Login";
 import Adminroutes from "./Adminroutes";
 import PrivateRoute from "../Context/PrivateRoute";
+import Contact from "@/Modules/Pages/Contact";
+import Menuroutes from "./Menuroutes";
 
 const AppRoutes = () => {
   return (
     <Routes>
       <Route path="/" element={<Homesection />} />
-      <Route path="/menu" element={<>menu</>} />
+      <Route path="/menu" element={<Menuroutes />} />
       <Route path="/franchise" element={<>franchise</>} />
-      <Route path="/contact" element={<>contact</>} />
+      <Route path="/contact" element={<Contact/>} />
       <Route path="/login" element={<Login />} />
       <Route
         path="/*"

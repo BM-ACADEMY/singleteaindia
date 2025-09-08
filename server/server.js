@@ -3,8 +3,6 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const helmet = require("helmet");
 const morgan = require("morgan");
-const fs = require("fs").promises;
-const path = require("path");
 require("dotenv").config();
 
 const connectDB = require("./config/db");
@@ -12,34 +10,37 @@ const userRoutes = require("./routes/userRoutes");
 const authRoutes = require("./routes/authRoutes");
 const franchiseRoutes = require("./routes/franchiseRoutes");
 const menuRoutes = require("./routes/menuRoutes");
+const franchiseGalleryRoutes = require("./routes/franchisegalleryRoutes");
+const galleryRoutes = require("./routes/galleryRoutes");
+const ContactRoutes = require("./routes/ContactRoute");
+const reviewRoutes = require("./routes/reviewRoutes");
+
+const ensureUploadFolder = require("./utils/setupFolder");
+const path = require("path");
 
 const app = express();
 
-// Create upload/menu folder if it doesn't exist
-const setupUploadFolder = async () => {
-  const uploadPath = path.join(__dirname, "upload", "menu");
-  try {
-    await fs.mkdir(uploadPath, { recursive: true });
-    console.log("Upload folder created or already exists:", uploadPath);
-  } catch (err) {
-    console.error("Failed to create upload folder:", err.message);
-  }
-};
+// Ensure upload folders exist
+ensureUploadFolder("menu");
+ensureUploadFolder("franchise");
+ensureUploadFolder("franchiseGallery");
+ensureUploadFolder("gallery");
 
-// Call the function to create the folder
-setupUploadFolder();
+// ================== MIDDLEWARE ==================
 
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
+// Security
 app.use(helmet());
+
+// Logging
 app.use(morgan("dev"));
 
-// Serve static files (for accessing uploaded images)
-app.use("/upload", express.static(path.join(__dirname, "upload")));
+// Body parser & cookies
+app.use(express.json());
+app.use(cookieParser());
 
-// CORS setup
+// Unified CORS setup
 const allowedOrigins = [process.env.CLIENT_URL, process.env.FRONTEND_URL];
+
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -50,18 +51,39 @@ app.use(
       }
     },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    exposedHeaders: ["Content-Disposition"],
   })
 );
 
-// Routes
+// Static file serving
+app.use(
+  "/upload",
+  (req, res, next) => {
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(path.join(__dirname, "upload"))
+);
+
+// Root route
+app.get("/", (req, res) => {
+  res.send("🚀 Single Tea India Backend is live!");
+});
+
+// ================== ROUTES ==================
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/franchises", franchiseRoutes);
 app.use("/api/menus", menuRoutes);
+app.use("/api/franchise-gallery", franchiseGalleryRoutes);
+app.use("/api/gallery", galleryRoutes);
+app.use("/api/conactemail", ContactRoutes);
+app.use("/api/reviews", reviewRoutes);
 
-// Connect to DB
+// ================== START SERVER ==================
 connectDB();
 
-// Start server
 const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

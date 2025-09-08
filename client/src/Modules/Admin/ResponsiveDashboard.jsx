@@ -7,6 +7,9 @@ import { FaRegImages } from "react-icons/fa6";
 import { NavLink, Outlet } from "react-router-dom";
 import { useAuth } from "@/Context/AuthContext";
 import { RiFileList3Fill } from "react-icons/ri";
+import Breadcrumbs from "./Breadcrumbs";
+import { BsFillHousesFill } from "react-icons/bs";
+import { BsChatLeftText } from "react-icons/bs";
 
 // ✅ Reusable color classes (change here to switch theme)
 const primary = {
@@ -19,18 +22,28 @@ const primary = {
 
 const Sidebar = ({ handleLinkClick, onLogoutClick }) => {
   const links = [
-    { path: "/admin/menu", label: "Menu", icon: <BiSolidFoodMenu /> },
-    { path: "/admin/menu-list", label: "Menu List", icon: <RiFileList3Fill /> },
+    { path: "/admin/menu", label: "Menu's Add", icon: <BiSolidFoodMenu /> },
+    { path: "/admin/menu-list", label: "Menu's List", icon: <RiFileList3Fill /> },
     {
       path: "/admin/franchises",
-      label: "Franchises",
+      label: "Franchises Add",
       icon: <IoStorefrontSharp />,
+    },
+    {
+      path: "/admin/franchises-list",
+      label: "Franchises List",
+      icon: <BsFillHousesFill />,
     },
     { path: "/admin/gallery", label: "Gallery", icon: <GrGallery /> },
     {
       path: "/admin/franchises-image",
       label: "Franchise Images",
       icon: <FaRegImages />,
+    },
+    {
+      path: "/admin/review",
+      label: "Reviews",
+      icon: <BsChatLeftText />,
     },
   ];
 
@@ -115,23 +128,27 @@ const ResponsiveDashboard = () => {
       <div className="flex-1 md:ml-64 flex flex-col">
         {/* Header */}
         <header className="flex items-center justify-between bg-white shadow px-6 py-4 fixed top-0 left-0 right-0 z-10 md:ml-64">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={toggleSidebar}
-              className="text-gray-700 md:hidden focus:outline-none"
-            >
-              <FaBars size={24} />
-            </button>
-            <h2 className="text-xl font-semibold text-gray-800">Admin Panel</h2>
-          </div>
-          <div className="flex items-center gap-4">
-            <div
-              className={`${primary.lightBg} ${primary.lightText} px-3 py-1 rounded-full text-sm font-medium`}
-            >
-              Admin
-            </div>
-          </div>
-        </header>
+  <div className="flex items-center gap-4">
+    <button
+      onClick={toggleSidebar}
+      className="text-gray-700 md:hidden focus:outline-none"
+    >
+      <FaBars size={24} />
+    </button>
+
+    {/* ✅ Breadcrumbs instead of static title */}
+    <Breadcrumbs />
+  </div>
+
+  <div className="flex items-center gap-4">
+    <div
+      className={`${primary.lightBg} ${primary.lightText} px-3 py-1 rounded-full text-sm font-medium`}
+    >
+      Admin
+    </div>
+  </div>
+</header>
+
 
         {/* Dynamic Content */}
         <main className="flex-1 mt-20 overflow-y-auto p-6">

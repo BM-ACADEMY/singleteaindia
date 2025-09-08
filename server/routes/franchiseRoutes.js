@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const franchiseController = require("../controllers/franchiseController");
+const upload = require("../middleware/multer");
 
-// CRUD routes
 router.get("/", franchiseController.getAllFranchises);
 router.get("/:id", franchiseController.getFranchiseById);
-router.post("/", franchiseController.createFranchise);
-router.put("/:id", franchiseController.updateFranchise);
+router.post("/", upload.array("images", 20), franchiseController.createFranchise);
+router.put("/:id", upload.array("images", 20), franchiseController.updateFranchise);
 router.delete("/:id", franchiseController.deleteFranchise);
 
 module.exports = router;
