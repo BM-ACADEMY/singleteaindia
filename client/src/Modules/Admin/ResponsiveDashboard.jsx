@@ -5,7 +5,7 @@ import { IoStorefrontSharp } from "react-icons/io5";
 import { GrGallery } from "react-icons/gr";
 import { FaRegImages } from "react-icons/fa6";
 import { NavLink, Outlet } from "react-router-dom";
-import { useAuth } from "@/Context/AuthContext";
+import { useAuth } from "@/Context/Authcontext";
 import { RiFileList3Fill } from "react-icons/ri";
 import Breadcrumbs from "./Breadcrumbs";
 import { BsFillHousesFill } from "react-icons/bs";
