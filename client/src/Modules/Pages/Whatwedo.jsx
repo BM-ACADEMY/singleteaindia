@@ -124,21 +124,17 @@ const WhatWeDo = () => {
       />
 
       {/* Heading */}
-      <div
-        className="text-center max-w-3xl mx-auto mb-16"
-        ref={headingRef}
-      >
+      <div className="text-center max-w-3xl mx-auto mb-16" ref={headingRef}>
         <h2 className="text-4xl md:text-6xl font-bold mb-6 text-black">
           What
           <span className="text-[#FF7A00]"> we do.</span>
         </h2>
         <p className="text-base md:text-xl text-[#5a3825] leading-relaxed">
-          It's what we follow and start your teavolution with us to bring an
-          inspiring cup of rarest tea experiences. We make you feel morning
-          wonders throughout the day. It's all about{" "}
-          <span className="text-[#FF7A00] font-semibold">
-            Exceptional Aroma.
-          </span>
+          At <span className="text-[#FF7A00] font-semibold">Single Tea</span>,
+          we don’t just serve tea – we brew opportunities. From our iconic
+          masala tea to a variety of blends, we create flavors that connect
+          people while offering low-cost franchise options to empower aspiring
+          entrepreneurs worldwide.
         </p>
       </div>
 
@@ -158,8 +154,10 @@ const WhatWeDo = () => {
             </h3>
           </div>
           <p className="text-lg text-[#5a3825] leading-relaxed">
-            At TeaBENCH, we are passionate about creating delightful experiences
-            through our perfect blend of tea.
+            We are Single Tea – a passionate tea brand rooted in tradition, yet
+            driven by innovation. Known for our signature masala tea, we are
+            also a platform for entrepreneurs, helping them start and grow their
+            own ventures with minimal investment.
           </p>
         </div>
 
@@ -177,8 +175,10 @@ const WhatWeDo = () => {
             </h3>
           </div>
           <p className="text-lg text-[#5a3825] leading-relaxed">
-            We constantly improve by setting high standards and prioritizing
-            customer delight with refreshing experiences.
+            We strive to spread the authentic taste of our masala tea across the
+            globe while creating a network of successful entrepreneurs. Our
+            mission is to make tea a bridge – connecting cultures, creating
+            livelihoods, and serving smiles.
           </p>
         </div>
       </div>

@@ -4,6 +4,7 @@ import AppRoutes from "./Routes/Routes"; // make sure the path is correct
 import Footer from "./Modules/Layout/Footer";
 import { AuthProvider } from "./context/AuthContext";
 import { ToastContainer } from "react-toastify";
+import { Scrolltotop } from "./scrolltop/Scrolltotop";
 
 function AppContent() {
   const location = useLocation();
@@ -25,6 +26,7 @@ function App() {
   return (
     <AuthProvider>
       <Router>
+        <Scrolltotop/>
         <AppContent />
       </Router>
     </AuthProvider>
