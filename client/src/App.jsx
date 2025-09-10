@@ -5,6 +5,7 @@ import Footer from "./Modules/Layout/Footer";
 import { ToastContainer } from "react-toastify";
 import { Scrolltotop } from "./scrolltop/Scrolltotop";
 import { AuthProvider } from "./Context/Authcontext";
+import Whatsappfloating from "./Floating/Whatsapp";
 
 function AppContent() {
   const location = useLocation();
@@ -31,6 +32,7 @@ function App() {
       <Router>
         <Scrolltotop/>
         <AppContent />
+        <Whatsappfloating/>
       </Router>
     </AuthProvider>
   );
