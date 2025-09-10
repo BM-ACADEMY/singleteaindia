@@ -9,8 +9,10 @@ import { AuthProvider } from "./Context/Authcontext";
 function AppContent() {
   const location = useLocation();
 
-  // Hide Navbar/Footer on admin routes
-  const hideLayout = location.pathname.startsWith("/admin");
+  // Hide Navbar/Footer on admin routes, login, and 404
+  const hideLayout =
+    location.pathname.startsWith("/admin") ||
+    location.pathname === "/login"
 
   return (
     <>
@@ -21,6 +23,7 @@ function AppContent() {
     </>
   );
 }
+
 
 function App() {
   return (
