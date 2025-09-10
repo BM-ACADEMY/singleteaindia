@@ -1,28 +1,33 @@
 "use client";
 
-import Carousel from "@/components/ui/carousel";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import axiosInstance from "@/api/axiosInstance"; // ✅ your axios setup
+import Carousel from "@/components/ui/carousel";
 
 export const Gallerysection = () => {
-  const slideData = [
-    {
-      title: "Mystic Mountains",
-      src: "https://images.unsplash.com/photo-1494806812796-244fe51b774d?q=80&w=3534&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Urban Dreams",
-      src: "https://images.unsplash.com/photo-1518710843675-2540dd79065c?q=80&w=3387&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Neon Nights",
-      src: "https://images.unsplash.com/photo-1590041794748-2d8eb73a571c?q=80&w=3456&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-    {
-      title: "Desert Whispers",
-      src: "https://images.unsplash.com/photo-1679420437432-80cfbf88986c?q=80&w=3540&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
-    },
-  ];
+  const [slides, setSlides] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch gallery data
+  useEffect(() => {
+    const fetchGallery = async () => {
+      try {
+        const res = await axiosInstance.get("/gallery");
+        // ✅ Map response into your carousel format
+        const formattedSlides = res.data.data.map((item) => ({
+          src: import.meta.env.VITE_SERVER_URL + item.image_url, // prepend server URL
+        }));
+        setSlides(formattedSlides);
+      } catch (error) {
+        console.error("Error fetching gallery:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGallery();
+  }, []);
 
   return (
     <div className="relative overflow-hidden w-full h-full py-20">
@@ -35,7 +40,7 @@ export const Gallerysection = () => {
           transition={{ duration: 1, delay: 0.2 }}
           viewport={{ once: true }}
         >
-          <span className="text-orange-500 relative z-10">Our </span>{" "}
+          <span className="text-[#f79100] relative z-10">Our </span>{" "}
           <span className="relative z-10">Gallery</span>
         </motion.h1>
 
@@ -53,7 +58,13 @@ export const Gallerysection = () => {
       </div>
 
       {/* Carousel */}
-      <Carousel slides={slideData} />
+      {loading ? (
+        <p className="text-center text-gray-500">Loading gallery...</p>
+      ) : slides.length > 0 ? (
+        <Carousel slides={slides} />
+      ) : (
+        <p className="text-center text-gray-500">No gallery images found.</p>
+      )}
     </div>
   );
 };

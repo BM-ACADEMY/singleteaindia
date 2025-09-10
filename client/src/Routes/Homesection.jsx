@@ -5,6 +5,7 @@ import Services from '../Modules/Pages/servcies'
 import Franchise from '@/Modules/Pages/franchise'
 import WhatWeDo from '@/Modules/Pages/Whatwedo'
 import { Gallerysection } from '@/Modules/Pages/Gallerysection'
+import Reviews from '@/Modules/Pages/Reviews'
 
 const Homesection = () => {
   return (
@@ -15,6 +16,7 @@ const Homesection = () => {
         <WhatWeDo/>
         <Franchise/>
         <Gallerysection/>
+        <Reviews/>
     </div>
   )
 }

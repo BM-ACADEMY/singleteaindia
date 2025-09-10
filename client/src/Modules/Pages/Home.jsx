@@ -9,9 +9,9 @@ export function ImagesSliderDemo() {
   const images = [ Banner2, Banner3];
 
   const texts = [
-    "The hero section slideshow nobody asked for",
-    "Sip the freshness, embrace the vibes",
-    "A new story unfolds with every slide",
+    "Sip Success with Single Tea.",
+    "Sip Success with Single Tea.",
+    "Sip Success with Single Tea.",
   ];
 
   const [currentText, setCurrentText] = useState(0);

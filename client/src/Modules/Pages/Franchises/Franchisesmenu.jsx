@@ -48,7 +48,7 @@ export const FranchisesMenu = () => {
         variants={headingVariants}
       >
         <h1 className="text-3xl sm:text-4xl md:text-6xl font-extrabold text-gray-900">
-          FROM A SINGLE OUTLET TO {totalBranches} BRANCHES
+          FROM A SINGLE OUTLET TO <span className="text-[#f79100]">{totalBranches}</span>+
         </h1>
       </motion.div>
 
@@ -74,7 +74,7 @@ export const FranchisesMenu = () => {
             </div>
             <div className="p-4 flex flex-col justify-between h-32">
               <h2 className="text-lg font-semibold text-gray-800">{branch.title}</h2>
-              <button className="mt-auto flex items-center justify-center gap-2 text-orange-500 font-medium hover:text-orange-700">
+              <button className="mt-auto flex items-center justify-center gap-2 text-[#f79100 font-medium hover:text-[#f79100">
                 Click Here <FiArrowRight />
               </button>
             </div>
