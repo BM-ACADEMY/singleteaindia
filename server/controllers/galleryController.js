@@ -14,17 +14,15 @@ const createGallery = asyncHandler(async (req, res) => {
     throw new Error("Image is required");
   }
 
-  // Server-side file size validation
   if (file.size > 5 * 1024 * 1024) {
     res.status(400);
     throw new Error("File size exceeds 5MB limit");
   }
 
-  const image_url = `/upload/gallery/${file.filename}`;
+  // Save full path with SERVER_URL
+  const image_url = `${process.env.SERVER_URL}/upload/gallery/${file.filename}`;
 
-  const gallery = await Gallery.create({
-    image_url,
-  });
+  const gallery = await Gallery.create({ image_url });
 
   res.status(201).json({
     success: true,
@@ -43,9 +41,7 @@ const getGalleries = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Get single gallery item
-// @route   GET /api/gallery/:id
-// @access  Public
+
 const getGallery = asyncHandler(async (req, res) => {
   const gallery = await Gallery.findById(req.params.id);
 
@@ -60,12 +56,9 @@ const getGallery = asyncHandler(async (req, res) => {
   });
 });
 
-// @desc    Update gallery item
-// @route   PUT /api/gallery/:id
-// @access  Private
+
 const updateGallery = asyncHandler(async (req, res) => {
   const gallery = await Gallery.findById(req.params.id);
-
   if (!gallery) {
     res.status(404);
     throw new Error("Gallery item not found");
@@ -76,15 +69,20 @@ const updateGallery = asyncHandler(async (req, res) => {
     throw new Error("New image is required");
   }
 
-  // Server-side file size validation
   if (req.file.size > 5 * 1024 * 1024) {
     res.status(400);
     throw new Error("File size exceeds 5MB limit");
   }
 
-  // Delete old image
+  // Delete old image file (local path)
   if (gallery.image_url) {
-    const oldImagePath = path.join(__dirname, "..", gallery.image_url);
+    const oldImagePath = path.join(
+      __dirname,
+      "..",
+      "upload",
+      "gallery",
+      path.basename(gallery.image_url)
+    );
     try {
       await fs.unlink(oldImagePath);
     } catch (err) {
@@ -92,7 +90,8 @@ const updateGallery = asyncHandler(async (req, res) => {
     }
   }
 
-  const image_url = `/upload/gallery/${req.file.filename}`;
+  // Save new URL with SERVER_URL
+  const image_url = `${process.env.SERVER_URL}/upload/gallery/${req.file.filename}`;
 
   const updatedGallery = await Gallery.findByIdAndUpdate(
     req.params.id,

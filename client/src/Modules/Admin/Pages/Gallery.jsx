@@ -22,7 +22,9 @@ const GalleryPage = () => {
       try {
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/gallery`);
         setGalleries(response.data.data || []);
-      } catch (err) {
+      } catch (err) { 
+        console.log(err);
+        
         setError("Failed to fetch gallery images");
         showToast("error", "Failed to fetch gallery images");
       }
@@ -305,10 +307,11 @@ const GalleryPage = () => {
                     {previewUrl ? "Preview:" : "Current Image:"}
                   </p>
                   <img
-                    src={
-                      previewUrl ||
-                      `${import.meta.env.VITE_SERVER_URL}${galleries.find((g) => g._id === editItemId)?.image_url}`
-                    }
+                    // src={
+                    //   previewUrl ||
+                    //   `${import.meta.env.VITE_SERVER_URL}${galleries.find((g) => g._id === editItemId)?.image_url}`
+                    // }
+                    src={previewUrl || galleries.find((g) => g._id === editItemId)?.image_url}
                     alt={previewUrl ? "Selected image preview" : "Current image"}
                     className="w-32 h-32 object-cover rounded-md border"
                   />
@@ -425,7 +428,8 @@ const GalleryPage = () => {
             >
               <div className="relative">
                 <img
-                  src={`${import.meta.env.VITE_SERVER_URL}${gallery.image_url}`}
+                  // src={`${import.meta.env.VITE_SERVER_URL}${gallery.image_url}`}
+                   src={gallery.image_url}
                   alt="Gallery Image"
                   className="h-48 w-full object-cover transition-transform duration-300"
                 />

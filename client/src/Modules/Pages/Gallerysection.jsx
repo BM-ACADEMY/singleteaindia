@@ -16,7 +16,8 @@ export const Gallerysection = () => {
         const res = await axiosInstance.get("/gallery");
         // ✅ Map response into your carousel format
         const formattedSlides = res.data.data.map((item) => ({
-          src: import.meta.env.VITE_SERVER_URL + item.image_url, // prepend server URL
+          // src: import.meta.env.VITE_SERVER_URL + item.image_url, 
+          src: item.image_url, // prepend server URL
         }));
         setSlides(formattedSlides);
       } catch (error) {

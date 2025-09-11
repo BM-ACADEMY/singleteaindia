@@ -24,6 +24,8 @@ const FranchiseGalleryPage = () => {
         const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/franchise-gallery`);
         setFranchiseGalleries(response.data.data || []);
       } catch (err) {
+        console.log(err);
+        
         setError("Failed to fetch franchise gallery images");
         showToast("error", "Failed to fetch franchise gallery images");
       }
@@ -348,10 +350,11 @@ const FranchiseGalleryPage = () => {
                     {previewUrl ? "Preview:" : "Current Image:"}
                   </p>
                   <img
-                    src={
-                      previewUrl ||
-                      `${import.meta.env.VITE_SERVER_URL}${editItem?.image_url}`
-                    }
+                    // src={
+                    //   previewUrl ||
+                    //   `${import.meta.env.VITE_SERVER_URL}${editItem?.image_url}`
+                    // }
+                    src={ previewUrl || editItem?.image_url }
                     alt={previewUrl ? "Selected image preview" : "Current image"}
                     className="w-32 h-32 object-cover rounded-md border"
                   />
@@ -469,7 +472,8 @@ const FranchiseGalleryPage = () => {
             >
               <div className="relative">
                 <img
-                  src={`${import.meta.env.VITE_SERVER_URL}${gallery.image_url}`}
+                  // src={`${import.meta.env.VITE_SERVER_URL}${gallery.image_url}`}
+                  src={gallery.image_url}
                   alt={gallery.name}
                   className="h-48 w-full object-cover transition-transform duration-300"
                 />

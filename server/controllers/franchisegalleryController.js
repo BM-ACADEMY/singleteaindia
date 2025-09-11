@@ -15,7 +15,8 @@ const createFranchiseGallery = asyncHandler(async (req, res) => {
     throw new Error("Name and image are required");
   }
 
-  const image_url = `/upload/franchiseGallery/${file.filename}`;
+  // Save FULL public URL to DB (recommended)
+  const image_url = `${process.env.SERVER_URL || ""}/upload/franchiseGallery/${file.filename}`;
 
   const franchiseGallery = await FranchiseGallery.create({
     name,
@@ -68,23 +69,24 @@ const updateFranchiseGallery = asyncHandler(async (req, res) => {
   }
 
   const { name } = req.body;
-  let updateFields = { name };
+  let updateFields = {};
+  if (name !== undefined) updateFields.name = name;
 
   if (req.file) {
-    // Delete old image if it exists
+    // Delete old image file from disk (robust handling)
     if (franchiseGallery.image_url) {
-      const oldImagePath = path.join(
-        __dirname,
-        "..",
-        franchiseGallery.image_url
-      );
       try {
+        // get filename (works whether image_url is full URL or relative path)
+        const oldFilename = path.basename(franchiseGallery.image_url);
+        const oldImagePath = path.join(__dirname, "..", "upload", "franchiseGallery", oldFilename);
         await fs.unlink(oldImagePath);
       } catch (err) {
+        // log but don't throw — deletion failure shouldn't block update
         console.error(`Failed to delete old image: ${err.message}`);
       }
     }
-    updateFields.image_url = `/upload/franchiseGallery/${req.file.filename}`;
+
+    updateFields.image_url = `${process.env.SERVER_URL || ""}/upload/franchiseGallery/${req.file.filename}`;
   }
 
   const updatedFranchiseGallery = await FranchiseGallery.findByIdAndUpdate(
@@ -110,10 +112,11 @@ const deleteFranchiseGallery = asyncHandler(async (req, res) => {
     throw new Error("Franchise gallery item not found");
   }
 
-  // Delete associated image
+  // Delete associated image file
   if (franchiseGallery.image_url) {
-    const imagePath = path.join(__dirname, "..", franchiseGallery.image_url);
     try {
+      const filename = path.basename(franchiseGallery.image_url);
+      const imagePath = path.join(__dirname, "..", "upload", "franchiseGallery", filename);
       await fs.unlink(imagePath);
     } catch (err) {
       console.error(`Failed to delete image: ${err.message}`);

@@ -92,7 +92,7 @@ const Gallery = () => {
             {currentImages.map((item, index) => (
               <motion.a
                 key={item._id}
-                data-src={`${import.meta.env.VITE_SERVER_URL}${item.image_url}`}
+                data-src={item.image_url}
                 data-sub-html={`<h4>${item.name}</h4>`}
                 className="block relative group overflow-hidden rounded-lg shadow-md"
                 initial={{ opacity: 0, filter: "blur(10px)" }}
@@ -101,7 +101,8 @@ const Gallery = () => {
                 viewport={{ once: true }}
               >
                 <img
-                  src={`${import.meta.env.VITE_SERVER_URL}${item.image_url}`}
+                  // src={`${import.meta.env.VITE_SERVER_URL}${item.image_url}`}
+                  src={item.image_url}
                   alt={item.name}
                   className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
                   loading="lazy"
