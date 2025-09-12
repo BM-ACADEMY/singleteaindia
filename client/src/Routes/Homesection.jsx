@@ -6,6 +6,7 @@ import Franchise from '@/Modules/Pages/franchise'
 import WhatWeDo from '@/Modules/Pages/Whatwedo'
 import { Gallerysection } from '@/Modules/Pages/Gallerysection'
 import Reviews from '@/Modules/Pages/Reviews'
+import Passiontopour from '@/Modules/Pages/Passiontopour'
 
 const Homesection = () => {
   return (
@@ -14,6 +15,7 @@ const Homesection = () => {
         <About/>
         <Services/>
         <WhatWeDo/>
+        <Passiontopour/>
         <Franchise/>
         <Gallerysection/>
         <Reviews/>
